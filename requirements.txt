@@ -1,0 +1,10 @@
+numpy
+pandas
+matplotlib
+requests
+kaggle
+torch
+segmentation-models-pytorch
+pytest
+tfrecord
+protobuf

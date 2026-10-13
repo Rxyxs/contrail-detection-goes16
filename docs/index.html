@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contrail Detection GOES-16</title>
+<meta name="description" content="Pixel-level segmentation of aircraft contrails in GOES-16 infrared imagery, scored with the Kaggle competition's global Dice.">
+<style>
+  :root {
+    --bg: #FBFAF8; --surface: #FFFFFF; --ink: #23201D; --muted: #6B645D;
+    --line: #E3DED7; --accent: #3D6FB5; --good: #4C7A3E;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151719; --surface: #1D2023; --ink: #E9EBED; --muted: #A2A8AE;
+      --line: #2E3236; --accent: #6E9BD9; --good: #7FAE6B;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #151719; --surface: #1D2023; --ink: #E9EBED; --muted: #A2A8AE;
+    --line: #2E3236; --accent: #6E9BD9; --good: #7FAE6B;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 16px 96px; }
+  header { padding: 72px 0 40px; border-bottom: 1px solid var(--line); margin-bottom: 44px; }
+  h1 { font-size: clamp(1.9rem, 5vw, 2.7rem); line-height: 1.15; margin: 0 0 18px; letter-spacing: -0.02em; }
+  .lede { font-size: clamp(1.02rem, 2.4vw, 1.17rem); color: var(--muted); margin: 0 0 24px; max-width: 64ch; }
+  .lede strong { color: var(--ink); }
+  .links a {
+    display: inline-block; margin: 0 10px 10px 0; padding: 9px 15px;
+    border: 1px solid var(--line); border-radius: 7px; text-decoration: none;
+    color: var(--ink); background: var(--surface); font-size: 0.9rem; transition: border-color .15s;
+  }
+  .links a:hover { border-color: var(--accent); }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 28px 0 0; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 9px; padding: 14px 16px; }
+  .stat b { display: block; font-size: 1.6rem; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .stat span { color: var(--muted); font-size: 0.85rem; }
+  h2 { font-size: 1.42rem; margin: 56px 0 8px; letter-spacing: -0.01em; padding-top: 10px; border-top: 1px solid var(--line); }
+  h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: 8px; }
+  p, li { max-width: 72ch; }
+  p { margin: 0 0 16px; }
+  figure { margin: 26px 0; }
+  figure img { width: 100%; height: auto; display: block; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+  figcaption { font-size: 0.85rem; color: var(--muted); margin-top: 9px; max-width: 72ch; }
+  .tablewrap { overflow-x: auto; margin: 22px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; min-width: 460px; }
+  th, td { padding: 9px 12px; text-align: right; border-bottom: 1px solid var(--line); }
+  th:first-child, td:first-child { text-align: left; }
+  thead th { color: var(--muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: .04em; }
+  .win td { color: var(--good); font-weight: 600; }
+  code { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; font-size: 0.88em; }
+  footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.85rem; }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Finding contrails in GOES-16 satellite imagery</h1>
+  <p class="lede">Persistent aircraft contrails cause about <strong>1% of human-caused warming</strong>, and many are avoidable with small altitude changes. Checking contrail forecasts needs a detector that marks every contrail pixel in a satellite scene. This is that detector, trained on real GOES-16 infrared data and scored with the Kaggle competition's metric.</p>
+  <div class="links">
+    <a href="https://github.com/Rxyxs/contrail-detection-goes16">Code on GitHub</a>
+    <a href="https://www.kaggle.com/competitions/google-research-identify-contrails-reduce-global-warming">Kaggle competition</a>
+    <a href="https://arxiv.org/abs/2304.02122">OpenContrails paper</a>
+  </div>
+  <div class="stats">
+    <div class="stat"><b>0.595</b><span>global Dice, validation (1,856 scenes)</span></div>
+    <div class="stat"><b>KAGGLE_PRIVATE</b><span>Kaggle private score (hidden test)</span></div>
+    <div class="stat"><b>+0.047</b><span>Dice from upsampling the input 2x</span></div>
+    <div class="stat"><b>8,197</b><span>training scenes, 40% of the full set</span></div>
+  </div>
+</header>
+
+<h2><span class="num">01</span>What worked</h2>
+<p>Every run uses a U-Net with a ResNet34 encoder, 40 epochs, and is scored on the full validation split with global Dice: intersection and sizes pooled over every pixel of the set, the competition metric.</p>
+<div class="tablewrap"><table>
+  <thead><tr><th>Model</th><th>Train scenes</th><th>Global Dice</th></tr></thead>
+  <tbody>
+    <tr><td>Labelled frame only</td><td>2,447</td><td>0.508</td></tr>
+    <tr><td>+ two neighbouring frames as channels</td><td>2,447</td><td>0.461</td></tr>
+    <tr><td>+ input upsampled 2x inside the network</td><td>2,447</td><td>0.555</td></tr>
+    <tr class="win"><td>+ input upsampled 2x, more data</td><td>8,197</td><td>0.595</td></tr>
+  </tbody>
+</table></div>
+<figure>
+  <img src="img/val_curves.png" alt="Validation global Dice per epoch for the four runs; the 2x-input run on 8,197 scenes stays highest throughout, the three-frame run lowest.">
+  <figcaption>Validation global Dice per epoch. The 2x-input runs lead from the first epochs; stacking frames lags throughout.</figcaption>
+</figure>
+<ul>
+  <li><strong>Resolution beats everything else tried.</strong> Contrails are 1-3 pixels wide at 2 km per pixel. Upsampling before the encoder keeps them alive through its stride-2 layers; logits are pooled back to the label grid.</li>
+  <li><strong>More data still pays</strong> (+0.040 going from 12% to 40% of the training set), and the curve had not flattened.</li>
+  <li><strong>Stacking frames hurt</strong> (-0.047). Frames are 10 minutes apart and contrails drift, so the stacked channels are misaligned.</li>
+  <li><strong>The best threshold sits far below 0.5</strong> (0.1 for the final model). With under 1% positive pixels the probabilities are poorly calibrated, so the cut-off is tuned on validation.</li>
+</ul>
+
+<h2><span class="num">02</span>What it sees</h2>
+<figure>
+  <img src="img/examples.png" alt="Four validation scenes in ash false colour with the human label and the model prediction side by side. Rows 1, 3 and 4 match closely; row 2 shows a contrail over complex cloud that the model misses.">
+  <figcaption>Ash false colour, human label, prediction. Straight, sharp contrails are caught; the contrail over a complex cloud deck in row 2 is missed entirely, and short fragments in row 3 are dropped.</figcaption>
+</figure>
+
+<h2><span class="num">03</span>Getting 451 GB of data onto a 300 GB disk</h2>
+<p>The Kaggle archive is 451 GB, and requesting its ~90,000 files one by one triggered the API rate limit, which blocked the account for hours. Two loaders replaced it:</p>
+<ul>
+  <li>An <strong>HTTP Range reader</strong> that asks Kaggle once for the archive's signed URL, reads the zip central directory remotely and fetches only bands 11, 14, 15 and the mask.</li>
+  <li>A <strong>streaming reader for OpenContrails</strong>, the CC BY 4.0 source dataset on Google Cloud Storage, which parses TFRecords and serialized <code>TensorProto</code> blobs without TensorFlow and skips any training scene that belongs to the validation split.</li>
+</ul>
+<p>Both keep each scene as an 8-frame ash false-colour composite in <code>uint8</code>: about 1.2 MB instead of 43 MB.</p>
+
+<h2><span class="num">04</span>Caveats</h2>
+<ul>
+  <li>The validation score picks both checkpoint and threshold, so it is mildly optimistic; the Kaggle private score is the independent number.</li>
+  <li>One encoder, one seed: differences around 0.01 are within noise.</li>
+  <li>No test-time augmentation or ensembling, and 60% of the training data unused.</li>
+</ul>
+
+<footer>
+  Pablo Reyes · Data: OpenContrails (Ng et al., 2023), CC BY 4.0, Google; NOAA GOES-16 ABI. Kaggle competition data is not redistributed. Code under MIT.
+</footer>
+</div>
+</body>
+</html>
