@@ -4,6 +4,7 @@ matplotlib
 requests
 kaggle
 torch
+torchvision
 segmentation-models-pytorch
 pytest
 tfrecord
