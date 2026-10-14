@@ -16,7 +16,7 @@ warming. Airlines can avoid many of them by changing altitude slightly, but the 
 that predict where contrails form need to be checked against what satellites actually see. This
 project builds that check: a model that marks every contrail pixel in a 256x256 scene.
 
-**Kaggle late submission:** public / private score — _pending_.
+**Kaggle late submission:** public **0.568** / private **0.597** global Dice. The private score lands within 0.002 of the 0.595 validation score, so the validation estimate held up.
 
 ## Results
 
@@ -51,7 +51,9 @@ What the numbers say:
   while training loss kept falling.
 
 The validation score selects both the checkpoint and the threshold, so it is mildly optimistic.
-The Kaggle private score above is the independent number.
+The Kaggle private score above is the independent number, and it agrees (0.597).
+
+The submission runs offline on CPU on Kaggle ([`kaggle/submit.py`](kaggle/submit.py)). Two earlier GPU submissions failed during Kaggle's hidden-test rerun with a platform-side "system error" even though the notebook itself completed; the identical notebook on CPU scored normally.
 
 ![Example predictions](docs/img/examples.png)
 

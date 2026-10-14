@@ -17,7 +17,7 @@ de altitud, pero los modelos físicos que predicen dónde se forman necesitan co
 que realmente ven los satélites. Este proyecto construye ese contraste: un modelo que marca cada
 píxel de estela en una escena de 256x256.
 
-**Late submission en Kaggle:** score público / privado — _pendiente_.
+**Late submission en Kaggle:** Dice global **0,568** en el público y **0,597** en el privado. El privado queda a 0,002 del 0,595 de validación, así que la estimación de validación se sostuvo.
 
 ## Resultados
 
@@ -53,7 +53,9 @@ Lo que dicen los números:
   y bajó a 0,476 mientras la pérdida de entrenamiento seguía cayendo.
 
 El score de validación elige tanto el checkpoint como el umbral, así que es levemente optimista.
-El score privado de Kaggle es el número independiente.
+El score privado de Kaggle es el número independiente, y coincide (0,597).
+
+La submission corre sin internet y en CPU en Kaggle ([`kaggle/submit.py`](kaggle/submit.py)). Dos envíos anteriores en GPU fallaron en la re-ejecución sobre el test oculto con un "system error" de la plataforma aunque el notebook terminaba bien; el mismo notebook en CPU se puntuó sin problemas.
 
 ![Ejemplos de predicción](docs/img/examples.png)
 

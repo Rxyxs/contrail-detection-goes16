@@ -71,7 +71,7 @@
   </div>
   <div class="stats">
     <div class="stat"><b>0.595</b><span>global Dice, validation (1,856 scenes)</span></div>
-    <div class="stat"><b>KAGGLE_PRIVATE</b><span>Kaggle private score (hidden test)</span></div>
+    <div class="stat"><b>0.597</b><span>Kaggle private score (hidden test)</span></div>
     <div class="stat"><b>+0.047</b><span>Dice from upsampling the input 2x</span></div>
     <div class="stat"><b>8,197</b><span>training scenes, 40% of the full set</span></div>
   </div>
@@ -115,7 +115,7 @@
 
 <h2><span class="num">04</span>Caveats</h2>
 <ul>
-  <li>The validation score picks both checkpoint and threshold, so it is mildly optimistic; the Kaggle private score is the independent number.</li>
+  <li>The validation score picks both checkpoint and threshold, so it could be optimistic; the independent Kaggle private score (0.597, public 0.568) confirms it.</li>
   <li>One encoder, one seed: differences around 0.01 are within noise.</li>
   <li>No test-time augmentation or ensembling, and 60% of the training data unused.</li>
 </ul>
