@@ -1,4 +1,4 @@
-**English** | [Español](README.es.md)
+[English ] | [[Español](README.es.md) ]
 
 # Contrail detection on GOES-16 satellite imagery
 

@@ -1,4 +1,4 @@
-[English](README.md) | **Español**
+[[English](README.md) ] | [Español ]
 
 # Detección de estelas de condensación en imágenes GOES-16
 
